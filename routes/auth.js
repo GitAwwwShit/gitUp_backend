@@ -10,16 +10,16 @@ router.get('/google',
   passport.authenticate('google', { scope: 'https://www.googleapis.com/auth/plus.login' }));
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' }),
+  passport.authenticate('google', { failureRedirect: '/shit' }),
   function(req, res) {
     // insertUser(req.user);  // removed untill user table is created
-    res.redirect('full address of front-end');
+    res.redirect('http://localhost:9000');
   });
 
 // app logout
 router.get('/logout', function(req, res){
   req.logout();
-  res.redirect('/');
+  res.redirect('http://localhost:9000');
 });
 
 
