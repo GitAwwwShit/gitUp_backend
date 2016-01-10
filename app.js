@@ -14,7 +14,7 @@ var pgSession = require('connect-pg-simple')(session);
 
 var passport = require('./local_modules/passport_config');
 
-var routes = require('./routes/index');
+var index = require('./routes/index');
 var auth = require('./routes/auth');
 
 var app = express();
@@ -22,6 +22,9 @@ var app = express();
 var env = process.env.NODE_ENV || 'development';
 app.locals.ENV = env;
 app.locals.ENV_DEVELOPMENT = env == 'development';
+
+//send server side log to browser
+var nodemonkey = require('node-monkey').start({host: "127.0.0.1", port:"50500"});
 
 // app.use(favicon(__dirname + '/public/img/favicon.ico'));
 app.use(logger('dev'));
@@ -31,7 +34,26 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 
-app.use('/', routes);
+// user session
+app.use(session({
+  store: new pgSession({
+    pg : pg,                                     // Use global pg-module
+    conString : process.env.DATABASE_URL,        // Connect using something else than default DATABASE_URL env variable
+    tableName : 'session'                        // Use another table-name than the default "session" one
+  }),
+  saveUninitialized: true,
+  secret: process.env.SESS_SECRET,
+  resave: false,
+  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+}));
+
+// user authenication
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+// routes
+app.use('/', index);
 app.use('/auth', auth);
 
 /// catch 404 and forward to error handler

@@ -1,4 +1,4 @@
-var authID = require('../oauth.js');
+var authID = require('../oauth_IDs.js');
 var knex = require('../db/knex');
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
