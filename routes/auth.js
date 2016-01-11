@@ -13,13 +13,13 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/shit' }),
   function(req, res) {
     // insertUser(req.user);  // removed untill user table is created
-    res.redirect('http://localhost:9000');
+    res.redirect('/');
   });
 
 // app logout
 router.get('/logout', function(req, res){
   req.logout();
-  res.redirect('http://localhost:9000');
+  res.redirect('/');
 });
 
 

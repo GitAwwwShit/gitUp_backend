@@ -3,3 +3,4 @@ public/components
 .sass-cache
 .env
 oauth_IDs.js
+gitUp_frontend
