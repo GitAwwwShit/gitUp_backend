@@ -4,11 +4,11 @@ public/components
 .env
 oauth_IDs.js
 gitUp_frontend/node_modules
-gitUp_frontend/
 .tmp
-gitUp_frontend/app
+gitUp_frontend/app/
 gitUp_frontend/bower_components
 gitUp_frontend/test
+gitUp_frontend/.gitignore
 .bowerrc
 .editorconfig
 .gitattributes
