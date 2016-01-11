@@ -3,4 +3,16 @@ public/components
 .sass-cache
 .env
 oauth_IDs.js
-gitUp_frontend
+gitUp_frontend/node_modules
+gitUp_frontend/
+.tmp
+gitUp_frontend/app
+gitUp_frontend/bower_components
+gitUp_frontend/test
+.bowerrc
+.editorconfig
+.gitattributes
+.yo-rc.json
+bower.json
+gulpfile.babel.js
+gitUp_frontend/package.json
