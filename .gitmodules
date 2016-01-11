@@ -1,0 +1,3 @@
+[submodule "gitUp_frontend"]
+	path = gitUp_frontend
+	url = git@github.com:GitAwwwShit/gitUp_frontend.git
