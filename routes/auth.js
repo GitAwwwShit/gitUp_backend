@@ -12,8 +12,8 @@ router.get('/google',
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/shit' }),
   function(req, res) {
-    // insertUser(req.user);  // removed untill user table is created
-    res.redirect('/');
+    insertUser(req.user);
+    res.redirect('/dashboard');
   });
 
 // app logout
@@ -25,17 +25,17 @@ router.get('/logout', function(req, res){
 
 // insert user into users table
 function insertUser(userObj) {
-  knex('users').where('user_id', userObj.id)
+  knex('user_login').where('auth_id', userObj.id)
   .then(function(user){
     if (user.length === 0) {
-      return knex('users').insert({
-        display_name: userObj.displayName,
-        user_id:      userObj.id,
+      return knex('user_login').insert({
+        username: userObj.displayName,
+        auth_id:      userObj.id,
         provider:     userObj.provider,
-        times_seen:   1
+        times_visited:   1
       })
     } else {
-      return knex('users').where('user_id', user[0].user_id).increment('times_seen', 1)
+      return knex('user_login').where('auth_id', user[0].auth_id).increment('times_visited', 1)
     }
   })
   .then(function(result){
