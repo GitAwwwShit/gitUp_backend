@@ -13,7 +13,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/shit' }),
   function(req, res) {
     insertUser(req.user);
-    res.redirect('/dashboard');
+    res.redirect('/');
   });
 
 // app logout
