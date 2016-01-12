@@ -2,8 +2,9 @@ var express = require('express');
 var router = express.Router();
 var knex = require('../local_modules/knex');
 
-
+// user with associated children
 router.get('/', function(req, res) {
+  // var userID = req.params.id
   getUserData(req.user.id).then(function(userData){
     var userInfo = {
       userdata: userData
@@ -11,6 +12,17 @@ router.get('/', function(req, res) {
     res.json(userInfo);
   })
 });
+
+// goals associated with a given child
+router.get('/childGoals', function(req, res) {
+  getUserData(req.user.id).then(function(userData){
+    var userInfo = {
+      userdata: userData
+    };
+    res.json(userInfo);
+  })
+});
+
 
 // determine user
 function getUserData(userID) {
