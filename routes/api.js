@@ -34,10 +34,20 @@ function getUserData(userID) {
     })
   })
   // .then(function(user){
-  //   return knex('child_goal').where('child_id', user.children.id)
-  //   .then(function(goals){
-  //     user.children.
+  //   var childrenIDs = Object.keys(user.children);
+  //   console.log(childrenIDs);
+  //   childrenIDs.forEach(function(childID){
+  //     return knex('child_goal').where('child_id', childID)
+  //     .then(function(childGoals){
+  //       console.log(childGoals);
+  //       user.children[childGoals.child_id].goals = {};
+  //       childGoals.forEach(function(childGoal){
+  //         user.children[childGoals.child_id].goals[childGoal.id] = childGoal;
+  //       })
+  //     })
+  //     return user
   //   })
+  //
   // })
   .catch(function(error){
     console.error(error);
