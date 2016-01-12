@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var knex = require('../local_modules/knex');
+var Promise = require('bluebird');
 
 // user with associated children
 router.get('/', function(req, res) {
@@ -33,30 +34,26 @@ function getUserData(userID) {
       return user
     })
   })
-  // .then(function(user){
-  //   var childrenIDs = Object.keys(user.children);
-  //   console.log(childrenIDs);
-  //   childrenIDs.forEach(function(childID){
-  //     return knex('child_goal').where('child_id', childID)
-  //     .then(function(childGoals){
-  //       console.log(childGoals);
-  //       user.children[childGoals.child_id].goals = {};
-  //       childGoals.forEach(function(childGoal){
-  //         user.children[childGoals.child_id].goals[childGoal.id] = childGoal;
-  //       })
-  //     })
-  //     return user
-  //   })
-  //
-  // })
+  .then(function(user){
+    var childrenIDs = Object.keys(user.children);
+    console.log(childrenIDs);
+    return Promise.map(childrenIDs, function(childID){
+      return knex('child_goal').where('child_id', parseInt(childID))
+    })
+    .then(function(childGoals){
+      console.log(childGoals);
+      // user.children[childGoals.child_id].goals = {};
+      // childGoals.forEach(function(childGoal){
+      //   user.children[childGoals.child_id].goals[childGoal.id] = childGoal;
+      // })
+
+      return user
+    })
+  })
+
   .catch(function(error){
     console.error(error);
   })
 }
 
 module.exports = router;
-
-
-// .then(function(user){
-//   return knex('child').where('user_login_id', user.id).return(children)
-// })
