@@ -36,17 +36,19 @@ function getUserData(userID) {
   })
   .then(function(user){
     var childrenIDs = Object.keys(user.children);
-    console.log(childrenIDs);
     return Promise.map(childrenIDs, function(childID){
       return knex('child_goal').where('child_id', parseInt(childID))
     })
     .then(function(childGoals){
       console.log(childGoals);
-      // user.children[childGoals.child_id].goals = {};
-      // childGoals.forEach(function(childGoal){
-      //   user.children[childGoals.child_id].goals[childGoal.id] = childGoal;
-      // })
-
+      console.log(user);
+      childGoals.forEach(function(childGoal){
+        console.log(childGoal[0].child_id);
+        user.children[childGoal[0].child_id].goals = {};
+        childGoal.forEach(function(goal){
+          user.children[childGoal[0].child_id].goals[goal.id] = goal;
+        })
+      })
       return user
     })
   })
