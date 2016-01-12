@@ -4,22 +4,30 @@ var knex = require('../local_modules/knex');
 
 
 router.get('/', function(req, res) {
-  var userInfo = getUserData(req.user.id)
-  console.log(userInfo);
-  res.json(userInfo);
+  getUserData(req.user.id).then(function(userData){
+    var userInfo = {
+      userdata: userData
+    };
+    res.json(userInfo);
+  })
 });
 
-  var userData = {};
 // determine user
 function getUserData(userID) {
-  knex('user_login').where('auth_id', userID).first()
+  return knex('user_login').where('auth_id', userID).first()
   .then(function(user){
-    userData.user = user;
+    return knex('child').where('user_login_id', user.id)
+    .then(function(children){
+      user.children = children;
+      return user
+    })
+  })
+  .then(function(user){
+    return user // do other knex calls if needed
   })
   .catch(function(error){
     console.error(error);
   })
-  return userData;
 }
 
 module.exports = router;
