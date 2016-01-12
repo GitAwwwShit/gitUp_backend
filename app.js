@@ -17,6 +17,7 @@ var passport = require('./local_modules/passport_config');
 
 var index = require('./routes/index');
 var auth = require('./routes/auth');
+var api = require('./routes/api');
 
 var app = express();
 
@@ -60,10 +61,18 @@ app.use(cors({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// run authentication
+function ensureAuthenticated(req, res, next) {
+  console.log("ensureAuthenticated",req.isAuthenticated());
+  if (req.isAuthenticated()) { return next(); }
+  res.render('index', { title: 'Express'});
+}
+
 
 // routes
 app.use('/', index);
 app.use('/auth', auth);
+app.use('/api', ensureAuthenticated, api);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -80,7 +89,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
-        res.render('error', {
+        res.json({
             message: err.message,
             error: err,
             title: 'error'
@@ -92,7 +101,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
+    res.json({
         message: err.message,
         error: {},
         title: 'error'
