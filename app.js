@@ -17,7 +17,7 @@ var passport = require('./local_modules/passport_config');
 
 var index = require('./routes/index');
 var auth = require('./routes/auth');
-var dashboard = require('./routes/dashboard');
+var api = require('./routes/api');
 
 var app = express();
 
@@ -61,11 +61,18 @@ app.use(cors({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// run authentication
+function ensureAuthenticated(req, res, next) {
+  console.log("ensureAuthenticated",req.isAuthenticated());
+  if (req.isAuthenticated()) { return next(); }
+  res.render('index', { title: 'Express'});
+}
+
 
 // routes
 app.use('/', index);
 app.use('/auth', auth);
-app.use('/dashboard', dashboard);
+app.use('/api', ensureAuthenticated, api);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
