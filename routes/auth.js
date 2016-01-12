@@ -16,6 +16,17 @@ router.get('/google/callback',
     res.redirect('/');
   });
 
+// facebook
+router.get('/facebook',
+  passport.authenticate('facebook'));
+
+router.get('/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/shit' }),
+  function(req, res) {
+    insertUser(req.user);
+    res.redirect('/');
+  });
+
 // app logout
 router.get('/logout', function(req, res){
   req.logout();
