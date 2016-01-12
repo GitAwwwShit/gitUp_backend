@@ -4,12 +4,8 @@ var knex = require('../local_modules/knex');
 
 // user with associated children
 router.get('/', function(req, res) {
-  // var userID = req.params.id
   getUserData(req.user.id).then(function(userData){
-    var userInfo = {
-      userdata: userData
-    };
-    res.json(userInfo);
+    res.json(userData);
   })
 });
 
@@ -30,13 +26,19 @@ function getUserData(userID) {
   .then(function(user){
     return knex('child').where('user_login_id', user.id)
     .then(function(children){
-      user.children = children;
+      user.children = {};
+      children.forEach(function(child){
+        user.children[child.id] = child;
+      });
       return user
     })
   })
-  .then(function(user){
-    return user // do other knex calls if needed
-  })
+  // .then(function(user){
+  //   return knex('child_goal').where('child_id', user.children.id)
+  //   .then(function(goals){
+  //     user.children.
+  //   })
+  // })
   .catch(function(error){
     console.error(error);
   })
