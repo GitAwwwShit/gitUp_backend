@@ -66,14 +66,13 @@ function getUserData(userID) {
             .groupBy('goal.minute_amount')
             .groupBy('goal.activity_id')
             .groupBy('goal.badge_id')
-            .then(function(CG_data_Array){
-              console.log(CG_data_Array);
-              CG_data_Array.forEach(function(CG_data){
-                var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
-                OCG_temp.entry_amount = CG_data.goal_status;
-                OCG_temp.reward_type = CG_data.type;
-                console.log(user);
-              })
+            .first()
+            .then(function(CG_data){
+              console.log(CG_data);
+              var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
+              OCG_temp.entry_amount_sum = CG_data.entry_amount_sum;
+              OCG_temp.reward_type = CG_data.type;
+              console.log(user);
             })
         })
       })
