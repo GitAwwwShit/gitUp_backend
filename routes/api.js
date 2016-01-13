@@ -39,20 +39,47 @@ function getUserData(userID) {
     return Promise.map(childrenIDs, function(childID){
       return knex('child_goal').where('child_id', parseInt(childID))
     })
-    .then(function(childGoals){
-      console.log(childGoals);
+    .then(function(ParentChildGoals){
+      console.log(ParentChildGoals);
       console.log(user);
-      childGoals.forEach(function(childGoal){
-        console.log(childGoal[0].child_id);
-        user.children[childGoal[0].child_id].goals = {};
-        childGoal.forEach(function(goal){
-          user.children[childGoal[0].child_id].goals[goal.id] = goal;
+      ParentChildGoals.forEach(function(childGoals){
+        console.log(childGoals);
+        console.log(childGoals[0].child_id);
+        user.children[childGoals[0].child_id].cGolds = {};
+        childGoals.forEach(function(OneChildGoal){
+          console.log(OneChildGoal);
+          user.children[childGoals[0].child_id].cGolds[OneChildGoal.id] = OneChildGoal;
+          knex('child_goal')
+            .join('reward', 'child_goal.reward_id', '=', 'reward.id')
+            .join('entry', 'child_goal.id', '=', 'entry.child_goal_id')
+            .join('goal', 'child_goal.goal_id', '=', 'goal.id')
+            .where({
+              'child_goal.id': OneChildGoal.id,
+              'child_id': OneChildGoal.child_id
+             })
+            .sum('amount as entry_amount_sum')
+            .select('child_id', 'goal_id', 'child_goal.id as child_goal_id', 'reward_id', 'type', 'minute_amount', 'activity_id', 'badge_id')
+            .groupBy('child_goal.child_id')
+            .groupBy('child_goal.goal_id')
+            .groupBy('child_goal.id')
+            .groupBy('reward.type')
+            .groupBy('goal.minute_amount')
+            .groupBy('goal.activity_id')
+            .groupBy('goal.badge_id')
+            .then(function(CG_data_Array){
+              console.log(CG_data_Array);
+              CG_data_Array.forEach(function(CG_data){
+                var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
+                OCG_temp.entry_amount = CG_data.goal_status;
+                OCG_temp.reward_type = CG_data.type;
+                console.log(user);
+              })
+            })
         })
       })
       return user
     })
   })
-
   .catch(function(error){
     console.error(error);
   })
