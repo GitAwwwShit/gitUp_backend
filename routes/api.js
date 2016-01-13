@@ -124,63 +124,73 @@ function getUserData(userID) {
     var childrenIDs = Object.keys(user.children);
     return Promise.map(childrenIDs, function(childID){
       return knex('child_goal').where('child_id', parseInt(childID))
+      .then(function(ParentChildGoals){
+        user.children[childID].cGoals = {}
+        ParentChildGoals.forEach(function(cGoal){
+          console.log(cGoal);
+          user.children[childID].cGoals[cGoal.id] = cGoal;
+        });
+        console.log(user);
+      })
     })
-    .then(function(ParentChildGoals){
-      console.log(ParentChildGoals);
-      console.log(user);
-      return Promise.map(ParentChildGoals, function(childGoals){
-        console.log(childGoals);
-        console.log(childGoals[0].child_id);
-        user.children[childGoals[0].child_id].cGolds = {};
-        return Promise.map(childGoals, function(OneChildGoal){
-          console.log(OneChildGoal);
-          user.children[childGoals[0].child_id].cGolds[OneChildGoal.id] = OneChildGoal;
-          return knex('child_goal')
-            .join('reward', 'child_goal.reward_id', '=', 'reward.id')
-            .join('entry', 'child_goal.id', '=', 'entry.child_goal_id')
-            .join('goal', 'child_goal.goal_id', '=', 'goal.id')
-            .where({
-              'child_goal.id': OneChildGoal.id,
-              'child_id': OneChildGoal.child_id
-             })
-            .sum('amount as entry_amount_sum')
-            .select('child_id',
-              'goal_id',
-              'child_goal.id as child_goal_id',
-              'entry.date_time as entry_date_time',
-              'reward.date_time as reward_date_time',
-              'reward_id',
-              'type',
-              'minute_amount as goal_amount',
-              'activity_id',
-              'badge_id'
-            )
-            .groupBy('child_goal.child_id')
-            .groupBy('child_goal.goal_id')
-            .groupBy('child_goal.id')
-            .groupBy('entry.date_time')
-            .groupBy('reward.date_time')
-            .groupBy('reward.type')
-            .groupBy('goal.minute_amount')
-            .groupBy('goal.activity_id')
-            .groupBy('goal.badge_id')
-            .first()
-        })
-        .then(function(CG_data){
-          console.log(CG_data);
-          // var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
-          // OCG_temp.entry_amount_sum = parseInt(CG_data.entry_amount_sum);
-          // OCG_temp.reward_type = CG_data.type;
-          // OCG_temp.goal_amount = CG_data.goal_amount;
-          // console.log(user);
-          return user;
+    .then(function(){
+      return user
+    })
+  })
+  .then(function(user){
+    console.log(user);
+    var childrenIDs = Object.keys(user.children);
+    return Promise.map(childrenIDs, function(childID){
+      var cGoalsIDs = Object.keys(user.children[childID].cGoals)
+      return Promise.map(cGoalsIDs, function(cGoalID){
+        return knex('child_goal')
+          .join('reward', 'child_goal.reward_id', '=', 'reward.id')
+          .join('entry', 'child_goal.id', '=', 'entry.child_goal_id')
+          .join('goal', 'child_goal.goal_id', '=', 'goal.id')
+          .where({
+            'child_goal.id': cGoalID,
+            'child_id': childID
+           })
+          .sum('amount as entry_amount_sum')
+          .select('child_id',
+            'goal_id',
+            'child_goal.id as child_goal_id',
+            'entry.date_time as entry_date_time',
+            'reward.date_time as reward_date_time',
+            'reward_id',
+            'type',
+            'minute_amount as goal_amount',
+            'activity_id',
+            'badge_id'
+          )
+          .groupBy('child_goal.child_id')
+          .groupBy('child_goal.goal_id')
+          .groupBy('child_goal.id')
+          .groupBy('entry.date_time')
+          .groupBy('reward.date_time')
+          .groupBy('reward.type')
+          .groupBy('goal.minute_amount')
+          .groupBy('goal.activity_id')
+          .groupBy('goal.badge_id')
+          .first()
+        .then(function(cGoal){
+          console.log(cGoal)
+          var OCG_temp = user.children[childID].cGoals[cGoal.child_goal_id]
+          console.log(OCG_temp);
+          OCG_temp.entry_amount_sum = parseInt(cGoal.entry_amount_sum)
+          OCG_temp.reward_type = cGoal.type
+          OCG_temp.goal_amount = cGoal.goal_amount
         })
       })
+    })
+    .then(function(){
+      console.log(user);
       return user
     })
   })
   .catch(function(err){
     console.error(err);
+    throw err
   })
 }
 
