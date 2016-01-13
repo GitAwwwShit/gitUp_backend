@@ -15,7 +15,7 @@ var pgSession = require('connect-pg-simple')(session);
 
 var passport = require('./local_modules/passport_config');
 
-var index = require('./routes/index');
+var dashboard = require('./routes/dashboard');
 var auth = require('./routes/auth');
 var api = require('./routes/api');
 
@@ -70,8 +70,8 @@ function ensureAuthenticated(req, res, next) {
 
 
 // routes
-app.use('/', index);
 app.use('/auth', auth);
+app.use('/dashboard', dashboard)
 app.use('/api', ensureAuthenticated, api);
 
 /// catch 404 and forward to error handler

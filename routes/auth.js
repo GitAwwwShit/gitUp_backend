@@ -13,7 +13,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/shit' }),
   function(req, res) {
     insertUser(req.user);
-    res.redirect('/');
+    res.redirect('/dashboard');
   });
 
 // facebook
@@ -24,7 +24,7 @@ router.get('/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/shit' }),
   function(req, res) {
     insertUser(req.user);
-    res.redirect('/');
+    res.redirect('/dashboard');
   });
 
 // app logout
