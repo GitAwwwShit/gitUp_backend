@@ -49,7 +49,7 @@ function getUserData(userID) {
         childGoals.forEach(function(OneChildGoal){
           console.log(OneChildGoal);
           user.children[childGoals[0].child_id].cGolds[OneChildGoal.id] = OneChildGoal;
-          knex('child_goal')
+          return knex('child_goal')
             .join('reward', 'child_goal.reward_id', '=', 'reward.id')
             .join('entry', 'child_goal.id', '=', 'entry.child_goal_id')
             .join('goal', 'child_goal.goal_id', '=', 'goal.id')
@@ -79,14 +79,15 @@ function getUserData(userID) {
             .groupBy('goal.activity_id')
             .groupBy('goal.badge_id')
             .first()
-            .then(function(CG_data){
-              console.log(CG_data);
-              var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
-              OCG_temp.entry_amount_sum = parseInt(CG_data.entry_amount_sum);
-              OCG_temp.reward_type = CG_data.type;
-              OCG_temp.goal_amount = CG_data.goal_amount;
-              console.log(user);
-            })
+          .then(function(CG_data){
+            console.log(CG_data);
+            var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
+            OCG_temp.entry_amount_sum = parseInt(CG_data.entry_amount_sum);
+            OCG_temp.reward_type = CG_data.type;
+            OCG_temp.goal_amount = CG_data.goal_amount;
+            console.log(user);
+            return user;
+          })
         })
       })
       return user
