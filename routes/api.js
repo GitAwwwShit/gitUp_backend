@@ -61,7 +61,7 @@ router.put('/:childID/:goalID/:rewardID', function(req, res) {  // add this back
   Promise.all(
     Knex('child_goal')
       .join('child', 'child_id', '=', 'child.id')
-      .where({child.id: child, user_login_id: user})
+      .where({child_id: child, user_login_id: user})
       .update({child_id: child, goal_id: goal, reward_id: reward})
   )
   .then(function(results){
@@ -78,7 +78,7 @@ router.delete('/:childID', function(req, res) {
   var user = req.session.passport.user.id;
   var child = req.params.childID;
   Promise.all(                      // first query chlid_goals on child_id returning/transforming
-    Knex('child_goal')              // it into an array of child_goal_id's. Then delete those and child
+    Knex('child_goal'),              // it into an array of child_goal_id's. Then delete those and child
     knex('child')
   )
   .then(function(results){
