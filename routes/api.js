@@ -5,21 +5,107 @@ var Promise = require('bluebird');
 
 // user with associated children
 router.get('/', function(req, res) {
-  getUserData(req.user.id).then(function(userData){
+  getUserData(req.user.id)
+  .then(function(userData){
     res.json(userData);
   })
-});
-
-// goals associated with a given child
-router.get('/childGoals', function(req, res) {
-  getUserData(req.user.id).then(function(userData){
-    var userInfo = {
-      userdata: userData
-    };
-    res.json(userInfo);
+  .catch(function(err){
+    res.json(err);
   })
 });
 
+// add a new child for the logged in user
+router.post('/child', function(req, res) {
+  knex('child').insert({
+    first_name: req.body.first_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    user_login_id: req.session.passport.user.id
+  })
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
+
+// add a goal for a given child
+router.post('/:childID/:goalID/:rewardID', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  var goal = req.params.goalID;
+  var reward = req.params.rewardID;
+  // var activity = req.params.activityID;
+  Promise.all(
+    Knex('child_goal').insert({child_id: child, goal_id: goal, reward_id: reward})
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+});
+
+// update a goal for a given child
+router.put('/:childID/:goalID/:rewardID', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  var goal = req.params.goalID;
+  var reward = req.params.rewardID;
+  // var activity = req.params.activityID;
+  Promise.all(
+    Knex('child_goal')
+      .join('child', 'child_id', '=', 'child.id')
+      .where({child.id: child, user_login_id: user})
+      .update({child_id: child, goal_id: goal, reward_id: reward})
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
+// delete a child and their childGoals. (Change this to archive later, requires massive query updates)
+router.delete('/:childID', function(req, res) {
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  Promise.all(                      // first query chlid_goals on child_id returning/transforming
+    Knex('child_goal')              // it into an array of child_goal_id's. Then delete those and child
+    knex('child')
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
+// delete a given child_goal for a child. (Change this to archive later, requires massive query updates)
+router.delete('/:childID/:childGoalID', function(req, res) {
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  var childGoal = req.params.childGoalID
+  Promise.all(
+    Knex('child_goal')
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
 
 // determine user
 function getUserData(userID) {
@@ -93,8 +179,8 @@ function getUserData(userID) {
       return user
     })
   })
-  .catch(function(error){
-    console.error(error);
+  .catch(function(err){
+    console.error(err);
   })
 }
 
