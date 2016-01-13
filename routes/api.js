@@ -58,10 +58,22 @@ function getUserData(userID) {
               'child_id': OneChildGoal.child_id
              })
             .sum('amount as entry_amount_sum')
-            .select('child_id', 'goal_id', 'child_goal.id as child_goal_id', 'reward_id', 'type', 'minute_amount', 'activity_id', 'badge_id')
+            .select('child_id',
+              'goal_id',
+              'child_goal.id as child_goal_id',
+              'entry.date_time as entry_date_time',
+              'reward.date_time as reward_date_time',
+              'reward_id',
+              'type',
+              'minute_amount as goal_amount',
+              'activity_id',
+              'badge_id'
+            )
             .groupBy('child_goal.child_id')
             .groupBy('child_goal.goal_id')
             .groupBy('child_goal.id')
+            .groupBy('entry.date_time')
+            .groupBy('reward.date_time')
             .groupBy('reward.type')
             .groupBy('goal.minute_amount')
             .groupBy('goal.activity_id')
