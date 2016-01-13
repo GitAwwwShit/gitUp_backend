@@ -128,11 +128,11 @@ function getUserData(userID) {
     .then(function(ParentChildGoals){
       console.log(ParentChildGoals);
       console.log(user);
-      ParentChildGoals.forEach(function(childGoals){
+      return Promise.map(ParentChildGoals, function(childGoals){
         console.log(childGoals);
         console.log(childGoals[0].child_id);
         user.children[childGoals[0].child_id].cGolds = {};
-        childGoals.forEach(function(OneChildGoal){
+        return Promise.map(childGoals, function(OneChildGoal){
           console.log(OneChildGoal);
           user.children[childGoals[0].child_id].cGolds[OneChildGoal.id] = OneChildGoal;
           return knex('child_goal')
@@ -165,15 +165,15 @@ function getUserData(userID) {
             .groupBy('goal.activity_id')
             .groupBy('goal.badge_id')
             .first()
-          .then(function(CG_data){
-            console.log(CG_data);
-            var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
-            OCG_temp.entry_amount_sum = parseInt(CG_data.entry_amount_sum);
-            OCG_temp.reward_type = CG_data.type;
-            OCG_temp.goal_amount = CG_data.goal_amount;
-            console.log(user);
-            return user;
-          })
+        })
+        .then(function(CG_data){
+          console.log(CG_data);
+          // var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
+          // OCG_temp.entry_amount_sum = parseInt(CG_data.entry_amount_sum);
+          // OCG_temp.reward_type = CG_data.type;
+          // OCG_temp.goal_amount = CG_data.goal_amount;
+          // console.log(user);
+          return user;
         })
       })
       return user
