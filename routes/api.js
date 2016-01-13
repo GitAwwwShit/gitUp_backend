@@ -5,21 +5,107 @@ var Promise = require('bluebird');
 
 // user with associated children
 router.get('/', function(req, res) {
-  getUserData(req.user.id).then(function(userData){
+  getUserData(req.user.id)
+  .then(function(userData){
     res.json(userData);
   })
-});
-
-// goals associated with a given child
-router.get('/childGoals', function(req, res) {
-  getUserData(req.user.id).then(function(userData){
-    var userInfo = {
-      userdata: userData
-    };
-    res.json(userInfo);
+  .catch(function(err){
+    res.json(err);
   })
 });
 
+// add a new child for the logged in user
+router.post('/child', function(req, res) {
+  knex('child').insert({
+    first_name: req.body.first_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    user_login_id: req.session.passport.user.id
+  })
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
+
+// add a goal for a given child
+router.post('/:childID/:goalID/:rewardID', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  var goal = req.params.goalID;
+  var reward = req.params.rewardID;
+  // var activity = req.params.activityID;
+  Promise.all(
+    Knex('child_goal').insert({child_id: child, goal_id: goal, reward_id: reward})
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+});
+
+// update a goal for a given child
+router.put('/:childID/:goalID/:rewardID', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  var goal = req.params.goalID;
+  var reward = req.params.rewardID;
+  // var activity = req.params.activityID;
+  Promise.all(
+    Knex('child_goal')
+      .join('child', 'child_id', '=', 'child.id')
+      .where({child_id: child, user_login_id: user})
+      .update({child_id: child, goal_id: goal, reward_id: reward})
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
+// delete a child and their childGoals. (Change this to archive later, requires massive query updates)
+router.delete('/:childID', function(req, res) {
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  Promise.all(                      // first query chlid_goals on child_id returning/transforming
+    Knex('child_goal'),              // it into an array of child_goal_id's. Then delete those and child
+    knex('child')
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
+// delete a given child_goal for a child. (Change this to archive later, requires massive query updates)
+router.delete('/:childID/:childGoalID', function(req, res) {
+  var user = req.session.passport.user.id;
+  var child = req.params.childID;
+  var childGoal = req.params.childGoalID
+  Promise.all(
+    Knex('child_goal')
+  )
+  .then(function(results){
+    console.log(results);
+    return results;
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
 
 // determine user
 function getUserData(userID) {
@@ -38,23 +124,73 @@ function getUserData(userID) {
     var childrenIDs = Object.keys(user.children);
     return Promise.map(childrenIDs, function(childID){
       return knex('child_goal').where('child_id', parseInt(childID))
-    })
-    .then(function(childGoals){
-      console.log(childGoals);
-      console.log(user);
-      childGoals.forEach(function(childGoal){
-        console.log(childGoal[0].child_id);
-        user.children[childGoal[0].child_id].goals = {};
-        childGoal.forEach(function(goal){
-          user.children[childGoal[0].child_id].goals[goal.id] = goal;
-        })
+      .then(function(ParentChildGoals){
+        user.children[childID].cGoals = {}
+        ParentChildGoals.forEach(function(cGoal){
+          console.log(cGoal);
+          user.children[childID].cGoals[cGoal.id] = cGoal;
+        });
+        console.log(user);
       })
+    })
+    .then(function(){
       return user
     })
   })
-
-  .catch(function(error){
-    console.error(error);
+  .then(function(user){
+    console.log(user);
+    var childrenIDs = Object.keys(user.children);
+    return Promise.map(childrenIDs, function(childID){
+      var cGoalsIDs = Object.keys(user.children[childID].cGoals)
+      return Promise.map(cGoalsIDs, function(cGoalID){
+        return knex('child_goal')
+          .join('reward', 'child_goal.reward_id', '=', 'reward.id')
+          .join('entry', 'child_goal.id', '=', 'entry.child_goal_id')
+          .join('goal', 'child_goal.goal_id', '=', 'goal.id')
+          .where({
+            'child_goal.id': cGoalID,
+            'child_id': childID
+           })
+          .sum('amount as entry_amount_sum')
+          .select('child_id',
+            'goal_id',
+            'child_goal.id as child_goal_id',
+            'entry.date_time as entry_date_time',
+            'reward.date_time as reward_date_time',
+            'reward_id',
+            'type',
+            'minute_amount as goal_amount',
+            'activity_id',
+            'badge_id'
+          )
+          .groupBy('child_goal.child_id')
+          .groupBy('child_goal.goal_id')
+          .groupBy('child_goal.id')
+          .groupBy('entry.date_time')
+          .groupBy('reward.date_time')
+          .groupBy('reward.type')
+          .groupBy('goal.minute_amount')
+          .groupBy('goal.activity_id')
+          .groupBy('goal.badge_id')
+          .first()
+        .then(function(cGoal){
+          console.log(cGoal)
+          var OCG_temp = user.children[childID].cGoals[cGoal.child_goal_id]
+          console.log(OCG_temp);
+          OCG_temp.entry_amount_sum = parseInt(cGoal.entry_amount_sum)
+          OCG_temp.reward_type = cGoal.type
+          OCG_temp.goal_amount = cGoal.goal_amount
+        })
+      })
+    })
+    .then(function(){
+      console.log(user);
+      return user
+    })
+  })
+  .catch(function(err){
+    console.error(err);
+    throw err
   })
 }
 
