@@ -82,8 +82,9 @@ function getUserData(userID) {
             .then(function(CG_data){
               console.log(CG_data);
               var OCG_temp = user.children[childGoals[0].child_id].cGolds[OneChildGoal.id]
-              OCG_temp.entry_amount_sum = CG_data.entry_amount_sum;
+              OCG_temp.entry_amount_sum = parseInt(CG_data.entry_amount_sum);
               OCG_temp.reward_type = CG_data.type;
+              OCG_temp.goal_amount = CG_data.goal_amount;
               console.log(user);
             })
         })
