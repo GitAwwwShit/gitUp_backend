@@ -53,17 +53,42 @@ router.post('/child', function(req, res) {
 
 
 // add a goal for a given child
-router.post('/:childID/:goalID/:rewardID', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
-  var user = req.session.passport.user.id;
-  var child = req.params.childID;
-  var goal = req.params.goalID;
-  var reward = req.params.rewardID;
+router.post('/makeGoal', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+  var childId = req.body.child_id;
+  var activityID = req.body.activity_id;
+  var amount = req.body.amount;
+  var reward = req.body.reward;
   // var activity = req.params.activityID;
-  Promise.all(
-    Knex('child_goal').insert({child_id: child, goal_id: goal, reward_id: reward})
-  )
+
+  knex.transaction(function(trx) {
+
+    return knex('reward').insert({
+      type:reward
+    })
+    .returning('id')
+    .then(function(reward){
+      console.log(reward);
+      return knex('goal').insert({
+        minute_amount:amount,
+        activity_id:activityID
+      }).returning('id')
+      .then(function(goal){
+        return {reward:reward[0], goal:goal[0]}
+      })
+    }).then(function(ids){
+      console.log(ids);
+      return knex('child_goal').insert({
+        child_id:childId,
+        goal_id: ids.goal,
+        reward_id: ids.reward
+      })
+    })
+    .then(trx.commit)
+    .catch(trx.rollback);
+  })
   .then(function(results){
     console.log(results);
+    res.end('it worked')
     return results;
   })
   .catch(function(err){
