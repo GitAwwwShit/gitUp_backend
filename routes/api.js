@@ -3,7 +3,8 @@ var router = express.Router();
 var knex = require('../local_modules/knex');
 var Promise = require('bluebird');
 
-// user with associated children
+
+// update a goal for a given child
 
 router.post('/entry/:childGoalID/:amount', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
   console.log('hello there');
@@ -70,17 +71,16 @@ router.post('/:childID/:goalID/:rewardID', function(req, res) {  // add this bac
   })
 });
 
-// update a goal for a given child
 
 
 // delete a child and their childGoals. (Change this to archive later, requires massive query updates)
-router.delete('/:childID', function(req, res) {
-  var user = req.session.passport.user.id;
+router.delete('/delete/:childID', function(req, res) {
+  //var user = req.session.passport.user.id;
   var child = req.params.childID;
   Promise.all(                      // first query chlid_goals on child_id returning/transforming
-    knex('child_goal').where('child_id', child).del(),              // it into an array of child_goal_id's. Then delete those and child
     knex('child').where('id', child).del(),
-    kenx('entry').where('child_id', child).del()
+    knex('child_goal').where('child_id', child).del()              // it into an array of child_goal_id's. Then delete those and child
+    //kenx('entry').where('child_id', child).del()
   )
   .then(function(results){
     console.log(results);
@@ -108,7 +108,7 @@ router.delete('/:childID/:childGoalID', function(req, res) {
   })
 })
 
-
+// user with associated children
 router.get('/', function(req, res) {
   getUserData(req.user.id)
   .then(function(userData){
