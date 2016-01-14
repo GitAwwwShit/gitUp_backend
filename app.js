@@ -64,7 +64,7 @@ app.use(passport.session());
 // run authentication
 function ensureAuthenticated(req, res, next) {
   console.log("ensureAuthenticated",req.isAuthenticated());
-  if (req.isAuthenticated()) { return next(); }
+  if (process.env.testing == 'true' || req.isAuthenticated()) { return next(); }
   res.render('index', { title: 'Express'});
 }
 
@@ -88,6 +88,7 @@ app.use(function(req, res, next) {
 
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
+        console.log(new Error());
         res.status(err.status || 500);
         res.json({
             message: err.message,
