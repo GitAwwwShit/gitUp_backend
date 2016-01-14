@@ -3,30 +3,50 @@ var router = express.Router();
 var knex = require('../local_modules/knex');
 var Promise = require('bluebird');
 
-// user with associated children
-router.get('/', function(req, res) {
-  getUserData(req.user.id)
-  .then(function(userData){
-    res.json(userData);
-  })
-  .catch(function(err){
-    res.json(err);
-  })
-});
+
+// update a goal for a given child
+
+router.post('/entry/:childGoalID/:amount', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+  console.log('hello there');
+  var childGoal = req.params.childGoalID;
+  var amount = req.params.amount;
+  var activity = req.params.activityID;
+    knex('entry').insert({
+      child_goal_id: childGoal,
+      amount: amount
+    })
+    .then(function(results){
+      res.json(results)
+      console.log(results);
+      return results;
+    })
+    .catch(function(err){
+      res.json(err);
+    })
+})
 
 // add a new child for the logged in user
 router.post('/child', function(req, res) {
-  knex('child').insert({
-    first_name: req.body.first_name,
-    gender: req.body.gender,
-    dob: req.body.dob,
-    user_login_id: req.session.passport.user.id
-  })
+  var firstName = req.body.first_name;
+  var gender = req.body.gender;
+  var dob = req.body.dob;
+  var userId = req.body.user_id;
+  Promise.all(
+   knex('child')
+     .join('user_login', 'user_login_id', '=', 'user_login.id')
+       .insert({
+         first_name: firstName ,
+         gender: gender,
+         dob: dob,
+         user_login_id: userId
+       })
+   )
   .then(function(results){
     console.log(results);
     return results;
   })
   .catch(function(err){
+    console.log('Oh NO');
     res.json(err);
   })
 })
@@ -51,35 +71,16 @@ router.post('/:childID/:goalID/:rewardID', function(req, res) {  // add this bac
   })
 });
 
-// update a goal for a given child
-router.put('/:childID/:goalID/:rewardID', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
-  var user = req.session.passport.user.id;
-  var child = req.params.childID;
-  var goal = req.params.goalID;
-  var reward = req.params.rewardID;
-  // var activity = req.params.activityID;
-  Promise.all(
-    Knex('child_goal')
-      .join('child', 'child_id', '=', 'child.id')
-      .where({child_id: child, user_login_id: user})
-      .update({child_id: child, goal_id: goal, reward_id: reward})
-  )
-  .then(function(results){
-    console.log(results);
-    return results;
-  })
-  .catch(function(err){
-    res.json(err);
-  })
-})
+
 
 // delete a child and their childGoals. (Change this to archive later, requires massive query updates)
-router.delete('/:childID', function(req, res) {
-  var user = req.session.passport.user.id;
+router.delete('/delete/:childID', function(req, res) {
+  //var user = req.session.passport.user.id;
   var child = req.params.childID;
   Promise.all(                      // first query chlid_goals on child_id returning/transforming
-    Knex('child_goal'),              // it into an array of child_goal_id's. Then delete those and child
-    knex('child')
+    knex('child').where('id', child).del(),
+    knex('child_goal').where('child_id', child).del()              // it into an array of child_goal_id's. Then delete those and child
+    //kenx('entry').where('child_id', child).del()
   )
   .then(function(results){
     console.log(results);
@@ -96,7 +97,7 @@ router.delete('/:childID/:childGoalID', function(req, res) {
   var child = req.params.childID;
   var childGoal = req.params.childGoalID
   Promise.all(
-    Knex('child_goal')
+    Knex('child_goal').where('')
   )
   .then(function(results){
     console.log(results);
@@ -106,6 +107,17 @@ router.delete('/:childID/:childGoalID', function(req, res) {
     res.json(err);
   })
 })
+
+// user with associated children
+router.get('/', function(req, res) {
+  getUserData(req.user.id)
+  .then(function(userData){
+    res.json(userData);
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+});
 
 // determine user
 function getUserData(userID) {
