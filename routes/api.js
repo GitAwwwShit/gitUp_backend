@@ -111,6 +111,7 @@ router.delete('/:childID/:childGoalID', function(req, res) {
 function getUserData(userID) {
   return knex('user_login').where('auth_id', userID).first()
   .then(function(user){
+    user.profilePic = user.user_image;
     return knex('child').where('user_login_id', user.id)
     .then(function(children){
       user.children = {};
@@ -177,9 +178,11 @@ function getUserData(userID) {
           console.log(cGoal)
           var OCG_temp = user.children[childID].cGoals[cGoal.child_goal_id]
           console.log(OCG_temp);
-          OCG_temp.entry_amount_sum = parseInt(cGoal.entry_amount_sum)
-          OCG_temp.reward_type = cGoal.type
-          OCG_temp.goal_amount = cGoal.goal_amount
+          OCG_temp.entry_amount_sum = parseInt(cGoal.entry_amount_sum);
+          OCG_temp.reward_type = cGoal.type;
+          OCG_temp.goal_amount = cGoal.goal_amount;
+          OCG_temp.goal_percent = ((cGoal.entry_amount_sum / cGoal.goal_amount)*100);
+
         })
       })
     })
