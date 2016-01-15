@@ -6,6 +6,17 @@ var Promise = require('bluebird');
 
 // update a goal for a given child
 
+// user with associated children
+router.get('/', function(req, res) {
+  getUserData(req.user.id)
+  .then(function(userData){
+    res.json(userData);
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+});
+
 router.post('/entry/:childGoalID/:amount', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
   console.log('hello there');
   var childGoal = req.params.childGoalID;
@@ -117,12 +128,10 @@ router.delete('/delete/:childID', function(req, res) {
 })
 
 // delete a given child_goal for a child. (Change this to archive later, requires massive query updates)
-router.delete('/:childID/:childGoalID', function(req, res) {
-  var user = req.session.passport.user.id;
-  var child = req.params.childID;
+router.delete('/deletegoal/:childGoalID', function(req, res) {
   var childGoal = req.params.childGoalID
   Promise.all(
-    Knex('child_goal').where('')
+    knex('child_goal').where('id', childGoal).del()
   )
   .then(function(results){
     console.log(results);
@@ -133,16 +142,7 @@ router.delete('/:childID/:childGoalID', function(req, res) {
   })
 })
 
-// user with associated children
-router.get('/', function(req, res) {
-  getUserData(req.user.id)
-  .then(function(userData){
-    res.json(userData);
-  })
-  .catch(function(err){
-    res.json(err);
-  })
-});
+
 
 // determine user
 function getUserData(userID) {
