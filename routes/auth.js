@@ -43,6 +43,7 @@ function insertUser(userObj) {
         username: userObj.displayName,
         auth_id:      userObj.id,
         provider:     userObj.provider,
+        user_image:   userObj.photos[0].value,
         times_visited:   1
       })
     } else {
