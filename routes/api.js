@@ -158,9 +158,9 @@ router.get('/activities', function(req,res){
 function getUserData(userID) {
   return knex('user_login').where('auth_id', userID).first()
   .then(function(user){
-    user.profilePic = user.user_image;
     return knex('child').where('user_login_id', user.id)
     .then(function(children){
+      user.profilePic = user.user_image;
       user.children = {};
       children.forEach(function(child){
         user.children[child.id] = child;
