@@ -64,26 +64,24 @@ router.post('/child', function(req, res) {
 
 
 // add a goal for a given child
-router.post('/makeGoal', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
+router.post('/makeGoal', function(req, res) {
   var childId = req.body.child_id;
   var activityID = req.body.activity_id;
   var amount = req.body.amount;
   var reward = req.body.reward;
-  // var activity = req.params.activityID;
 
   knex.transaction(function(trx) {
-
     return knex('reward').insert({
       type:reward
     })
     .returning('id')
     .then(function(reward){
-      console.log(reward);
       return knex('goal').insert({
-        minute_amount:amount,
-        activity_id:activityID
+        minute_amount: amount,
+        activity_id: activityID
       }).returning('id')
       .then(function(goal){
+        console.log(goal);
         return {reward:reward[0], goal:goal[0]}
       })
     }).then(function(ids){
@@ -230,6 +228,9 @@ function getUserData(userID) {
           OCG_temp.goal_amount = cGoal.goal_amount;
           OCG_temp.goal_percent = ((cGoal.entry_amount_sum / cGoal.goal_amount)*100);
           OCG_temp.activity_id = cGoal.activity_id;
+        })
+        .catch(function(err){
+          console.log(err)
         })
         // .then(function(){
         //   console.log(user.children[childID].cGoals[cGoal.child_goal_id]);
