@@ -142,6 +142,16 @@ router.delete('/deletegoal/:childGoalID', function(req, res) {
   })
 })
 
+router.get('/activities', function(req,res){
+  return knex.select().table('activity')
+  .then(function(results){
+    res.json(results);
+  })
+  .catch(function(err){
+    res.json(err);
+  })
+})
+
 
 
 // determine user
@@ -198,7 +208,7 @@ function getUserData(userID) {
             'reward_id',
             'type',
             'minute_amount as goal_amount',
-            'activity_id',
+            'activity_id as activity_id',
             'badge_id'
           )
           .groupBy('child_goal.child_id')
@@ -219,8 +229,11 @@ function getUserData(userID) {
           OCG_temp.reward_type = cGoal.type;
           OCG_temp.goal_amount = cGoal.goal_amount;
           OCG_temp.goal_percent = ((cGoal.entry_amount_sum / cGoal.goal_amount)*100);
-
+          OCG_temp.activity_id = cGoal.activity_id;
         })
+        // .then(function(){
+        //   console.log(user.children[childID].cGoals[cGoal.child_goal_id]);
+        // })
       })
     })
     .then(function(){
