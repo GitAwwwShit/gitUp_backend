@@ -3,6 +3,20 @@ var gulp = require('gulp'),
   plumber = require('gulp-plumber'),
   livereload = require('gulp-livereload');
 
+require('gulp-submodule')(gulp);
+
+// import gulp from 'gulp';
+// import nodemon from 'gulp-nodemon';
+// import plumber from 'gulp-plumber';
+// import livereload from 'gulp-livereload';
+// import gulpSubmodule from 'gulp-submodule';
+//
+// gulpSubmodule(gulp);
+
+
+var mod = gulp.submodule('gitUp_frontend', {filepath: "gitUp_frontend/gulpfile.babel.js"});
+console.log('Mod returns ' + mod);
+
 
 gulp.task('develop', function () {
   livereload.listen();
@@ -19,7 +33,6 @@ gulp.task('develop', function () {
     this.stderr.pipe(process.stderr);
   });
 });
+console.log(gulp);
 
-gulp.task('default', [
-  'develop'
-]);
+gulp.task('default', ['mod:default', 'develop']);
