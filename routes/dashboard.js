@@ -5,7 +5,7 @@ var path = require('path');
 /* GET home page. */
 
 router.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, '../gitUp_frontend/dist/dashboard.html'));
+  res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
 module.exports = router;
