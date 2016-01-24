@@ -1,4 +1,4 @@
-var authID = require('../oauth_IDs.js');
+// var authID = require('../oauth_IDs.js');
 var knex = require('../local_modules/knex');
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -14,9 +14,9 @@ passport.deserializeUser(function(obj, done) {
 
 // strategies config
 passport.use(new GoogleStrategy({
-  clientID: authID.google.clientID,
-  clientSecret: authID.google.clientSecret,
-  callbackURL: authID.google.callbackURL
+  clientID: process.env.G_CLIENTID,
+  clientSecret: process.env.G_CLIENTSECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
@@ -27,9 +27,9 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.use(new FacebookStrategy({
-    clientID: authID.facebook.clientID,
-    clientSecret: authID.facebook.clientSecret,
-    callbackURL: authID.facebook.callbackURL,
+    clientID: process.env.FB_CLIENTID,
+    clientSecret: process.env.FB_CLIENTSECRET,
+    callbackURL: process.env.FB_CALLBACK,
     profileFields: ['id', 'displayName', 'photos'],
     enableProof: false
   },
