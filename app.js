@@ -65,7 +65,7 @@ app.use(passport.session());
 function ensureAuthenticated(req, res, next) {
   console.log("ensureAuthenticated",req.isAuthenticated());
   if (process.env.testing == 'true' || req.isAuthenticated()) { return next(); }
-  res.render('index', { title: 'Express'});
+  res.send("Please login.");
 }
 
 
