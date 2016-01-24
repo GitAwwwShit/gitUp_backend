@@ -7,7 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
-var dotenv = require('dotenv').load();
+// var dotenv = require('dotenv').load();
 
 var pg = require('pg');
 var session = require('express-session');
