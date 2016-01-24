@@ -4,8 +4,6 @@ var knex = require('../local_modules/knex');
 var Promise = require('bluebird');
 
 
-// update a goal for a given child
-
 // user with associated children
 router.get('/', function(req, res) {
   getUserData(req.user.id)
@@ -17,6 +15,7 @@ router.get('/', function(req, res) {
   })
 });
 
+// update a goal for a given child
 router.post('/entry/:childGoalID/:amount', function(req, res) {  // add this back when its added to the '/' GET route: /:activityID
   console.log('hello there');
   var childGoal = req.params.childGoalID;

@@ -7,7 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
-// var dotenv = require('dotenv').load();
+var dotenv = require('dotenv').load();
 
 var pg = require('pg');
 var session = require('express-session');
@@ -40,9 +40,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // user session
 app.use(session({
   store: new pgSession({
-    pg : pg,                                     // Use global pg-module
-    conString : process.env.DATABASE_URL,        // Connect using something else than default DATABASE_URL env variable
-    tableName : 'session'                        // Use another table-name than the default "session" one
+    pg : pg,                                                    // Use global pg-module
+    conString : process.env.DATABASE_URL + "?ssl=false",        // Connect using something else than default DATABASE_URL env variable
+    tableName : 'session'                                      // Use another table-name than the default "session" one
   }),
   saveUninitialized: true,
   secret: process.env.SESS_SECRET,

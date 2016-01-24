@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// var dotenv = require('dotenv').load();
+var dotenv = require('dotenv').load();
 var app = require('../app');
 
 app.set('port', process.env.SERVER_PORT);
