@@ -4,7 +4,6 @@ module.exports = {
 
   development: {
     client: 'pg',
-    sslmode=require,
     connection: {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
