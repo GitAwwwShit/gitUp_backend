@@ -41,7 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   store: new pgSession({
     pg : pg,                                                    // Use global pg-module
-    conString : process.env.DATABASE_URL,        // Connect using something else than default DATABASE_URL env variable
+    conString : process.env.DATABASE_URL + "?ssl=true",        // Connect using something else than default DATABASE_URL env variable
     tableName : 'session'                                      // Use another table-name than the default "session" one
   }),
   saveUninitialized: true,
@@ -50,12 +50,6 @@ app.use(session({
   cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
 }));
 
-app.use(cors({
-	credentials: true,
-	allowedHeaders: ['Authorization'],
-	exposedHeaders: ['Authorization'],
-	origin: 'http://localhost:3000'
-}));
 
 // user authenication
 app.use(passport.initialize());
