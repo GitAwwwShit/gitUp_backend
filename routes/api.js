@@ -106,6 +106,7 @@ router.post('/makeGoal', function(req, res) {
   })
   .then(function(results){
     console.log(results);
+    res.send(results);
     res.end('it worked')
     return results;
   })
