@@ -64,7 +64,7 @@ function ensureAuthenticated(req, res, next) {
 
 // routes
 app.use('/auth', auth);
-app.use('/dashboard', dashboard)
+app.use('/dashboard', ensureAuthenticated, dashboard)
 app.use('/api', ensureAuthenticated, api);
 
 /// catch 404 and forward to error handler
