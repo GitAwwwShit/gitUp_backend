@@ -89,6 +89,16 @@ router.post('/makeGoal', function(req, res) {
         child_id:childId,
         goal_id: ids.goal,
         reward_id: ids.reward
+      }).returning('id')
+      .then(function(cGoalID){
+        console.log(cGoalID);
+        return cGoalID;
+      })
+    }).then(function(cGID){
+      console.log(cGID);
+      return knex('entry').insert({
+        amount: 0,
+        child_goal_id: cGID
       })
     })
     .then(trx.commit)
