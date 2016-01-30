@@ -97,7 +97,7 @@ router.post('/makeGoal', function(req, res) {
     }).then(function(cGID){
       console.log(cGID);
       return knex('entry').insert({
-        amount: 0,
+        amount: '0',
         child_goal_id: cGID
       })
     })
